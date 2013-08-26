@@ -1,15 +1,19 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <iostream>
-#include <math.h>
-#include <sstream>
 #include <myQWidget.h>
 #include <QPainter>
 #include <QMouseEvent>
+#include <iostream>
+#include <math.h>
+#include <sstream>
 
 using namespace std;
 
 int xcor = 0, ycor = 0, x2cor = 0, y2cor = 0, xval = 0, yval = 0, x2val = 0, y2val = 0;
+
+// Default CM9 config
+std::string himax="event3";
+std::string keypad="event4";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,8 +27,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QPushButton *upd_bg_btn = new QPushButton(this);
     upd_bg_btn->setGeometry(510, 200, 100, 28);
     upd_bg_btn->setText("Refresh");
+    upd_bg_btn->setToolTip("Refresh Screen");
     upd_bg_btn->show();
-    this->connect(this->ui->pwr_btn, SIGNAL(clicked()), this, SLOT(pwr_btn_click()));
+    this->ui->pwr_btn->setToolTip("Press Power Button");
+    this->ui->vol_up_btn->setToolTip("Press Volume-Up Button");
+    this->ui->vol_dn_btn->setToolTip("Press Volume-Down Button");
+    this->ui->unlock_btn->setToolTip("Perform Basic Unlock gesture");
+    this->connect(this->ui->pwr_btn, SIGNAL(pressed()), this, SLOT(pwr_btn_click_start()));
+    this->connect(this->ui->pwr_btn, SIGNAL(released()), this, SLOT(pwr_btn_click_end()));
     this->connect(this->ui->vol_up_btn, SIGNAL(clicked()), this, SLOT(vol_up_btn_click()));
     this->connect(this->ui->vol_dn_btn, SIGNAL(clicked()), this, SLOT(vol_dn_btn_click()));
     this->connect(this->ui->home_btn, SIGNAL(clicked()), this, SLOT(home_btn_click()));
@@ -34,11 +44,27 @@ MainWindow::MainWindow(QWidget *parent) :
     this->connect(this->ui->unlock_btn, SIGNAL(clicked()), this, SLOT(unlock_btn_click()));
     this->connect(this->ui->lp_pwr_btn, SIGNAL(clicked()), this, SLOT(lp_pwr_btn_click()));
     connect(upd_bg_btn, SIGNAL(clicked()), bg_img, SLOT(update_bg()));
+    this->connect(this->ui->rom_select, SIGNAL(currentIndexChanged(int)), SLOT(rom_select()));
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::rom_select() {
+    QString rom_name=this->ui->rom_select->currentText();
+    if (rom_name=="CM9") {
+        himax="event3";
+        keypad="event4";
+    }
+    else if (rom_name=="MiniCM9"){
+        himax="event4";
+        keypad="event3";
+    }
+    string temp=rom_name.toStdString();
+    system(("echo "+temp).c_str());
 }
 
 void myQWidget::update_bg(){
@@ -95,11 +121,11 @@ string inttoa(int a) {
 }
 
 void send_tclick(string x, string y){
-    system(("./bin/adb shell \"sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 "+x+" && sendevent /dev/input/event3 3 54 "+y+" && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 0 && sendevent /dev/input/event3 0 0 0\"").c_str());
+    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 0 0 && sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
 }
 
 void send_tswipe(string x, string y, string x2, string y2){
-    system(("./bin/adb shell \"sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 "+x+" && sendevent /dev/input/event3 3 54 "+y+" && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 "+x2+" && sendevent /dev/input/event3 3 54 "+y2+" && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 0 && sendevent /dev/input/event3 0 0 0\"").c_str());
+    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 0 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x2+" && sendevent /dev/input/"+himax+" 3 54 "+y2+" && sendevent /dev/input/"+himax+" 0 0 0 && sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
 }
 
 void myQWidget::bg_img_press(){
@@ -134,8 +160,12 @@ void myQWidget::bg_img_press(){
     }
 }
 
-void MainWindow::pwr_btn_click(){
-    system("./bin/adb shell \"sendevent /dev/input/event4 1 116 1 && sendevent  dev/input/event4 1 116 0\"");
+void MainWindow::pwr_btn_click_start(){
+    system(("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 116 1\"").c_str());
+}
+
+void MainWindow::pwr_btn_click_end(){
+    system(("./bin/adb shell \"sendevent dev/input/"+keypad+" 1 116 0\"").c_str());
 }
 
 void MainWindow::lp_pwr_btn_click(){

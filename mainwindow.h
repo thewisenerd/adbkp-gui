@@ -18,8 +18,12 @@ public:
 private:
     Ui::MainWindow *ui;
 
+public slots:
+    void rom_select();
+
 private slots:
-    void pwr_btn_click();
+    void pwr_btn_click_start();
+    void pwr_btn_click_end();
     void vol_up_btn_click();
     void vol_dn_btn_click();
     void home_btn_click();

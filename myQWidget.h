@@ -16,7 +16,7 @@ public slots:
     void bg_img_press();
     void update_bg();
 protected:
-    void mousePressEvent ( QMouseEvent * event ) ;
+    void mousePressEvent ( QMouseEvent *event ) ;
     void mouseReleaseEvent(QMouseEvent *e);
     void paintEvent(QPaintEvent *);
 
