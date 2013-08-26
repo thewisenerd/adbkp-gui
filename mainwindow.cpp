@@ -20,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->ui->lp_pwr_btn->setToolTip("Long Press Power Button");
     myQWidget *bg_img = new myQWidget(this);
     bg_img->setGeometry(160,5,320,480);
     bg_img->show();
@@ -33,16 +32,37 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->vol_up_btn->setToolTip("Press Volume-Up Button");
     this->ui->vol_dn_btn->setToolTip("Press Volume-Down Button");
     this->ui->unlock_btn->setToolTip("Perform Basic Unlock gesture");
+
+    //Power button
     this->connect(this->ui->pwr_btn, SIGNAL(pressed()), this, SLOT(pwr_btn_click_start()));
     this->connect(this->ui->pwr_btn, SIGNAL(released()), this, SLOT(pwr_btn_click_end()));
-    this->connect(this->ui->vol_up_btn, SIGNAL(clicked()), this, SLOT(vol_up_btn_click()));
-    this->connect(this->ui->vol_dn_btn, SIGNAL(clicked()), this, SLOT(vol_dn_btn_click()));
-    this->connect(this->ui->home_btn, SIGNAL(clicked()), this, SLOT(home_btn_click()));
-    this->connect(this->ui->menu_btn, SIGNAL(clicked()), this, SLOT(menu_btn_click()));
-    this->connect(this->ui->back_btn, SIGNAL(clicked()), this, SLOT(back_btn_click()));
-    this->connect(this->ui->search_btn, SIGNAL(clicked()), this, SLOT(search_btn_click()));
+
+    //Volume Up button
+    this->connect(this->ui->vol_up_btn, SIGNAL(pressed()), this, SLOT(vol_up_btn_click_start()));
+    this->connect(this->ui->vol_up_btn, SIGNAL(released()), this, SLOT(vol_up_btn_click_end()));
+
+    //Volume Down button
+    this->connect(this->ui->vol_dn_btn, SIGNAL(pressed()), this, SLOT(vol_dn_btn_click_start()));
+    this->connect(this->ui->vol_dn_btn, SIGNAL(released()), this, SLOT(vol_dn_btn_click_end()));
+
+    //home button
+    this->connect(this->ui->home_btn, SIGNAL(pressed()), this, SLOT(home_btn_click_start()));
+    this->connect(this->ui->home_btn, SIGNAL(released()), this, SLOT(home_btn_click_end()));
+
+    //menu button
+    this->connect(this->ui->menu_btn, SIGNAL(pressed()), this, SLOT(menu_btn_click_start()));
+    this->connect(this->ui->menu_btn, SIGNAL(released()), this, SLOT(menu_btn_click_end()));
+
+    //back button
+    this->connect(this->ui->back_btn, SIGNAL(pressed()), this, SLOT(back_btn_click_start()));
+    this->connect(this->ui->back_btn, SIGNAL(released()), this, SLOT(back_btn_click_end()));
+
+    //search button
+    this->connect(this->ui->search_btn, SIGNAL(pressed()), this, SLOT(search_btn_click_start()));
+    this->connect(this->ui->search_btn, SIGNAL(released()), this, SLOT(search_btn_click_end()));
+
+
     this->connect(this->ui->unlock_btn, SIGNAL(clicked()), this, SLOT(unlock_btn_click()));
-    this->connect(this->ui->lp_pwr_btn, SIGNAL(clicked()), this, SLOT(lp_pwr_btn_click()));
     connect(upd_bg_btn, SIGNAL(clicked()), bg_img, SLOT(update_bg()));
     this->connect(this->ui->rom_select, SIGNAL(currentIndexChanged(int)), SLOT(rom_select()));
 
@@ -168,32 +188,48 @@ void MainWindow::pwr_btn_click_end(){
     system(("./bin/adb shell \"sendevent dev/input/"+keypad+" 1 116 0\"").c_str());
 }
 
-void MainWindow::lp_pwr_btn_click(){
-    system("./bin/adb shell \"sendevent /dev/input/event4 1 116 1 && sleep 2.0 && sendevent  dev/input/event4 1 116 0\"");
+void MainWindow::vol_up_btn_click_start(){
+    system(("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 115 1\"").c_str());
 }
 
-void MainWindow::vol_up_btn_click(){
-    system("./bin/adb shell \"sendevent /dev/input/event4 1 115 1 && sendevent  dev/input/event4 1 115 0\"");
+void MainWindow::vol_up_btn_click_end(){
+    system(("./bin/adb shell \"sendevent dev/input/"+keypad+" 1 115 0\"").c_str());
 }
 
-void MainWindow::vol_dn_btn_click(){
-    system("./bin/adb shell \"sendevent /dev/input/event4 1 114 1 && sendevent  dev/input/event4 1 114 0\"");
+void MainWindow::vol_dn_btn_click_start(){
+    system(("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 114 1\"").c_str());
 }
 
-void MainWindow::home_btn_click(){
-    system("./bin/adb shell \"sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 125 && sendevent /dev/input/event3 3 54 950 && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 0 && sendevent /dev/input/event3 0 0 0\"");
+void MainWindow::vol_dn_btn_click_end(){
+    system(("./bin/adb shell \"sendevent dev/input/"+keypad+" 1 114 0\"").c_str());
 }
 
-void MainWindow::menu_btn_click(){
-    system("./bin/adb shell \"sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 375 && sendevent /dev/input/event3 3 54 950 && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 0 && sendevent /dev/input/event3 0 0 0\"");
+void MainWindow::home_btn_click_start(){
+    system(("./bin/adb shell \"sendevent dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 125 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+}
+void MainWindow::home_btn_click_end(){
+    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
 }
 
-void MainWindow::back_btn_click(){
-    system("./bin/adb shell \"sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 675 && sendevent /dev/input/event3 3 54 950 && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 0 && sendevent /dev/input/event3 0 0 0\"");
+void MainWindow::menu_btn_click_start(){
+    system(("./bin/adb shell \"sendevent dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 375 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+}
+void MainWindow::menu_btn_click_end(){
+    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
 }
 
-void MainWindow::search_btn_click(){
-    system("./bin/adb shell \"sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 925 && sendevent /dev/input/event3 3 54 950 && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 0 && sendevent /dev/input/event3 0 0 0\"");
+void MainWindow::back_btn_click_start(){
+    system(("./bin/adb shell \"sendevent dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 675 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+}
+void MainWindow::back_btn_click_end(){
+    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+}
+
+void MainWindow::search_btn_click_start(){
+    system(("./bin/adb shell \"sendevent dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 925 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+}
+void MainWindow::search_btn_click_end(){
+    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
 }
 
 void MainWindow::unlock_btn_click() {

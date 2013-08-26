@@ -185,19 +185,6 @@
      <string>Unlock</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="lp_pwr_btn">
-    <property name="geometry">
-     <rect>
-      <x>510</x>
-      <y>240</y>
-      <width>100</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>L.P. Power</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
