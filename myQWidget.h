@@ -9,18 +9,14 @@ class myQWidget : public QWidget
 public:
     explicit myQWidget(QWidget *parent = 0);
 
-signals:
-    void clicked();
 public slots:
-    void slotClicked();
-    void bg_img_press();
     void update_bg();
+
 protected:
     void mousePressEvent ( QMouseEvent *event ) ;
     void mouseMoveEvent( QMouseEvent *eve );
     void mouseReleaseEvent( QMouseEvent *e );
     void paintEvent(QPaintEvent *);
-
 };
 
 #endif // MYQWIDGET_H
