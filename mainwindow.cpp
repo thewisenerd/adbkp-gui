@@ -73,6 +73,32 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
+// Custom Functions for ease of use :)
+// Round number function.
+int roundn(float x)
+{
+    return static_cast<int>(floor(x + 0.5f));
+}
+// integer to string conversion.
+string inttoa(int a) {
+    string str;
+    ostringstream temp;
+    temp<<a;
+    return temp.str();
+}
+
+
+void send_click(string x, string y){
+    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+}
+
+void release_click(){
+    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+}
+
+
+
 void MainWindow::rom_select() {
     QString rom_name=this->ui->rom_select->currentText();
     if (rom_name=="CM9") {
@@ -105,18 +131,56 @@ void myQWidget::slotClicked() {
     bg_img_press();
 }
 
-void myQWidget::mousePressEvent ( QMouseEvent * event )
+/*void myQWidget::mousePressEvent ( QMouseEvent *event )
 {
     xcor=event->pos().x();
     ycor=event->pos().y();
+}*/
+
+void myQWidget::mousePressEvent ( QMouseEvent *event )
+{
+    xcor=event->pos().x();
+    ycor=event->pos().y();
+    double xcordbl=xcor;
+    double ycordbl=ycor;
+    float xcorflt=(xcordbl/320)*1024;
+    xval=round(xcorflt);
+    float ycorflt=(ycordbl/480)*910;
+    yval=round(ycorflt);
+    string tempstrx=inttoa(xval);
+    string tempstry=inttoa(yval);
+    send_click(tempstrx, tempstry);
 }
 
-void myQWidget::mouseReleaseEvent ( QMouseEvent *e )
+/*void myQWidget::mouseReleaseEvent ( QMouseEvent *e )
 {
     x2cor=e->pos().x();
     y2cor=e->pos().y();
     emit clicked();
+}*/
+
+void myQWidget::mouseReleaseEvent(QMouseEvent *e)
+{
+    release_click();
 }
+
+void myQWidget::mouseMoveEvent(QMouseEvent *eve)
+{
+    xcor=eve->pos().x();
+    ycor=eve->pos().y();
+    double xcordbl=xcor;
+    double ycordbl=ycor;
+    float xcorflt=(xcordbl/320)*1024;
+    xval=round(xcorflt);
+    float ycorflt=(ycordbl/480)*910;
+    yval=round(ycorflt);
+    string tempstrx=inttoa(xval);
+    string tempstry=inttoa(yval);
+    send_click(tempstrx, tempstry);
+}
+
+
+
 
 void myQWidget::paintEvent(QPaintEvent *)
  {
@@ -126,19 +190,9 @@ void myQWidget::paintEvent(QPaintEvent *)
      style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
  }
 
-// Custom Functions for ease of use :)
-// Round number function.
-int roundn(float x)
-{
-    return static_cast<int>(floor(x + 0.5f));
-}
-// integer to string conversion.
-string inttoa(int a) {
-    string str;
-    ostringstream temp;
-    temp<<a;
-    return temp.str();
-}
+
+
+
 
 void send_tclick(string x, string y){
     system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 0 0 && sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());

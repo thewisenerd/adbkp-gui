@@ -41,7 +41,6 @@ public slots:
     //search button
     void search_btn_click_start();
     void search_btn_click_end();
-
     void unlock_btn_click();    
 };
 
