@@ -34,7 +34,7 @@ public slots:
     void back_btn_click_end();
     void search_btn_click_start();
     void search_btn_click_end();
-    void unlock_btn_click();    
+    void unlock_btn_click();
 };
 
 #endif // MAINWINDOW_H

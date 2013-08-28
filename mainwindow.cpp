@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     upd_bg_btn->setText("Refresh");
     upd_bg_btn->setToolTip("Refresh Screen");
     upd_bg_btn->setCursor(Qt::PointingHandCursor);
+    upd_bg_btn->setFont(QFont("Arial", 10));
     upd_bg_btn->show();
 
     // Power button
