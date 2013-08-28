@@ -20,6 +20,7 @@ private:
 
 public slots:
     void rom_select();
+    void touch_type_set();
     void pwr_btn_click_start();
     void pwr_btn_click_end();
     void vol_up_btn_click_start();

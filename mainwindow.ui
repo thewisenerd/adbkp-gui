@@ -378,6 +378,31 @@ Vineeth Raj&lt;br&gt;
      </property>
     </item>
    </widget>
+   <widget class="QCheckBox" name="multi_chk">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>280</y>
+      <width>95</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>95</width>
+      <height>23</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Diag-Touch</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

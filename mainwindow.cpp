@@ -3,6 +3,7 @@
 #include <myQWidget.h>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QCheckBox>
 #include <iostream>
 #include <math.h>
 #include <sstream>
@@ -10,7 +11,7 @@
 using namespace std;
 
 int xcor = 0, ycor = 0, xval = 0, yval = 0;
-
+bool multi_touch = false;
 // Default CM9 config
 std::string himax="event3";
 std::string keypad="event4";
@@ -72,6 +73,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // rom select
     this->connect(this->ui->rom_select, SIGNAL(currentIndexChanged(int)), SLOT(rom_select()));
+
+    // touch type select
+    this->connect(this->ui->multi_chk, SIGNAL(clicked()), SLOT(touch_type_set()));
 }
 
 MainWindow::~MainWindow()
@@ -101,6 +105,11 @@ void release_click()
     system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
 }
 
+void multi_touch_click(string x, string y, string x2, string y2)
+{
+    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 57 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 3 57 1 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x2+" && sendevent /dev/input/"+himax+" 3 54 "+y2+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+}
+
 void MainWindow::rom_select()
 {
     QString rom_name=this->ui->rom_select->currentText();
@@ -111,6 +120,16 @@ void MainWindow::rom_select()
     else if (rom_name=="MiniCM9"){
         himax="event4";
         keypad="event3";
+    }
+}
+
+void MainWindow::touch_type_set()
+{
+    if (multi_touch==false){
+        multi_touch=true;
+    }
+    else {
+        multi_touch=false;
     }
 }
 
@@ -128,13 +147,16 @@ myQWidget::myQWidget(QWidget *parent):QWidget(parent)
 
 void myQWidget::mousePressEvent(QMouseEvent *event)
 {
-    xcor=event->pos().x();
-    ycor=event->pos().y();
-    xval=round((static_cast<double>(xcor)/320)*1024);
-    yval=round((static_cast<double>(ycor)/480)*910);
-    string tempstrx=inttoa(xval);
-    string tempstry=inttoa(yval);
-    send_click(tempstrx, tempstry);
+    string tempstrx=inttoa(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f)));
+    string tempstry=inttoa(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f)));
+    if (multi_touch==false) {
+        send_click(tempstrx, tempstry);
+    }
+    else {
+        string tempstrx2=inttoa(static_cast<int>(floor((((static_cast<double>(320-event->pos().x()))/320)*1024) + 0.5f)));
+        string tempstry2=inttoa(static_cast<int>(floor((((static_cast<double>(480-event->pos().y()))/480)*910) + 0.5f)));
+        multi_touch_click(tempstrx, tempstry, tempstrx2, tempstry2);
+    }
 }
 
 void myQWidget::mouseReleaseEvent(QMouseEvent *e)
@@ -144,17 +166,16 @@ void myQWidget::mouseReleaseEvent(QMouseEvent *e)
 
 void myQWidget::mouseMoveEvent(QMouseEvent *eve)
 {
-    xcor=eve->pos().x();
-    ycor=eve->pos().y();
-    double xcordbl=xcor;
-    double ycordbl=ycor;
-    float xcorflt=(xcordbl/320)*1024;
-    xval=round(xcorflt);
-    float ycorflt=(ycordbl/480)*910;
-    yval=round(ycorflt);
-    string tempstrx=inttoa(xval);
-    string tempstry=inttoa(yval);
-    send_click(tempstrx, tempstry);
+    string tempstrx=inttoa(static_cast<int>(floor((((static_cast<double>(eve->pos().x()))/320)*1024) + 0.5f)));
+    string tempstry=inttoa(static_cast<int>(floor((((static_cast<double>(eve->pos().y()))/480)*910) + 0.5f)));
+    if (multi_touch==false) {
+        send_click(tempstrx, tempstry);
+    }
+    else {
+        string tempstrx2=inttoa(static_cast<int>(floor((((static_cast<double>(320-eve->pos().x()))/320)*1024) + 0.5f)));
+        string tempstry2=inttoa(static_cast<int>(floor((((static_cast<double>(480-eve->pos().y()))/480)*910) + 0.5f)));
+        multi_touch_click(tempstrx, tempstry, tempstrx2, tempstry2);
+    }
 }
 
 void myQWidget::paintEvent(QPaintEvent *)
