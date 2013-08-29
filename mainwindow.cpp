@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QCheckBox>
+#include <QProcess>
 #include <iostream>
 #include <math.h>
 #include <sstream>
@@ -97,7 +98,15 @@ string inttoa(int a) {
 
 void send_click(string x, string y)
 {
+
     system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    int asdf=12;
+    QString command= "echo " + QString::number(asdf);
+    QProcess *send_click = new QProcess();
+    send_click->execute(command);
+
+
+
 }
 
 void release_click()
