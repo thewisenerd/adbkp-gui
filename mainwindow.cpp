@@ -13,9 +13,14 @@ using namespace std;
 
 int xcor = 0, ycor = 0, xval = 0, yval = 0;
 bool multi_touch = false;
+QProcess *t_click = new QProcess();
+
 // Default CM9 config
 std::string himax="event3";
 std::string keypad="event4";
+
+QString himax_qt="event3";
+QString keypad_qt="event4";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -96,27 +101,20 @@ string inttoa(int a) {
     return temp.str();
 }
 
-void send_click(string x, string y)
+void send_click(QString x, QString y)
 {
-
-    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
-    int asdf=12;
-    QString command= "echo " + QString::number(asdf);
-    QProcess *send_click = new QProcess();
-    send_click->execute(command);
-
-
-
+    t_click->execute("./bin/adb shell \"sendevent /dev/input/"+himax_qt+" 3 48 1 && sendevent /dev/input/"+himax_qt+" 3 53 "+x+" && sendevent /dev/input/"+himax_qt+" 3 54 "+y+" && sendevent /dev/input/"+himax_qt+" 0 0 0\"");
 }
 
 void release_click()
 {
     system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+
 }
 
 void multi_touch_click(string x, string y, string x2, string y2)
 {
-    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 57 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 3 57 1 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x2+" && sendevent /dev/input/"+himax+" 3 54 "+y2+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    //system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 57 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 3 57 1 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x2+" && sendevent /dev/input/"+himax+" 3 54 "+y2+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
 }
 
 void MainWindow::rom_select()
@@ -156,16 +154,17 @@ myQWidget::myQWidget(QWidget *parent):QWidget(parent)
 
 void myQWidget::mousePressEvent(QMouseEvent *event)
 {
-    string tempstrx=inttoa(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f)));
-    string tempstry=inttoa(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f)));
     if (multi_touch==false) {
-        send_click(tempstrx, tempstry);
+
+        //working
+        //t_click->execute("./bin/adb shell \"sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/event3 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 0 && sendevent /dev/input/event3 0 0 0\"");
+        send_click(QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f))), QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f))));
     }
-    else {
+    /*else {
         string tempstrx2=inttoa(static_cast<int>(floor((((static_cast<double>(320-event->pos().x()))/320)*1024) + 0.5f)));
         string tempstry2=inttoa(static_cast<int>(floor((((static_cast<double>(480-event->pos().y()))/480)*910) + 0.5f)));
         multi_touch_click(tempstrx, tempstry, tempstrx2, tempstry2);
-    }
+    }*/
 }
 
 void myQWidget::mouseReleaseEvent(QMouseEvent *e)
@@ -178,13 +177,15 @@ void myQWidget::mouseMoveEvent(QMouseEvent *eve)
     string tempstrx=inttoa(static_cast<int>(floor((((static_cast<double>(eve->pos().x()))/320)*1024) + 0.5f)));
     string tempstry=inttoa(static_cast<int>(floor((((static_cast<double>(eve->pos().y()))/480)*910) + 0.5f)));
     if (multi_touch==false) {
-        send_click(tempstrx, tempstry);
+        //send_click(QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f))), QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f))));
+
+        //send_click(tempstrx, tempstry);
     }
-    else {
+    /*else {
         string tempstrx2=inttoa(static_cast<int>(floor((((static_cast<double>(320-eve->pos().x()))/320)*1024) + 0.5f)));
         string tempstry2=inttoa(static_cast<int>(floor((((static_cast<double>(480-eve->pos().y()))/480)*910) + 0.5f)));
         multi_touch_click(tempstrx, tempstry, tempstrx2, tempstry2);
-    }
+    }*/
 }
 
 void myQWidget::paintEvent(QPaintEvent *)
