@@ -1,2 +1,18 @@
-Use QT Designer, and import the .pro file.
-Build and it should be ready :).
+adbkp-gui
+
+Building: Use QT Designer, and import the *.pro file.
+Build and it should be ready. :)
+
+Releasing:
+
+Example Release Directory:
+release-dir/
+release-dir/bin/
+release-dir/bin/adb
+release-dir/black.png
+release-dir/adbkp-gui
+
+Get the "adb" executable from android-sdk.
+
+References:
+-Twin0ne's guide here: http://forum.xda-developers.com/showthread.php?t=1875094
