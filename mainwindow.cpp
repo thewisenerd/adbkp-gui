@@ -5,22 +5,16 @@
 #include <QMouseEvent>
 #include <QCheckBox>
 #include <QProcess>
-#include <iostream>
-#include <math.h>
-#include <sstream>
+#include <cmath>
 
 using namespace std;
 
-int xcor = 0, ycor = 0, xval = 0, yval = 0;
 bool multi_touch = false;
-QProcess *t_click = new QProcess();
+QProcess *exec = new QProcess();
 
 // Default CM9 config
-std::string himax="event3";
-std::string keypad="event4";
-
-QString himax_qt="event3";
-QString keypad_qt="event4";
+QString himax="event3";
+QString keypad="event4";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -89,34 +83,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-int roundn(float x)
-{
-    return static_cast<int>(floor(x + 0.5f));
-}
-
-string inttoa(int a) {
-    string str;
-    ostringstream temp;
-    temp<<a;
-    return temp.str();
-}
-
-void send_click(QString x, QString y)
-{
-    t_click->execute("./bin/adb shell \"sendevent /dev/input/"+himax_qt+" 3 48 1 && sendevent /dev/input/"+himax_qt+" 3 53 "+x+" && sendevent /dev/input/"+himax_qt+" 3 54 "+y+" && sendevent /dev/input/"+himax_qt+" 0 0 0\"");
-}
-
-void release_click()
-{
-    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
-
-}
-
-void multi_touch_click(string x, string y, string x2, string y2)
-{
-    //system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 57 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x+" && sendevent /dev/input/"+himax+" 3 54 "+y+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 3 57 1 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+x2+" && sendevent /dev/input/"+himax+" 3 54 "+y2+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
-}
-
 void MainWindow::rom_select()
 {
     QString rom_name=this->ui->rom_select->currentText();
@@ -155,37 +121,26 @@ myQWidget::myQWidget(QWidget *parent):QWidget(parent)
 void myQWidget::mousePressEvent(QMouseEvent *event)
 {
     if (multi_touch==false) {
-
-        //working
-        //t_click->execute("./bin/adb shell \"sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/event3 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 0 && sendevent /dev/input/event3 0 0 0\"");
-        send_click(QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f))), QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f))));
+            exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 0 0\"");
+                }
+    else {
+        exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 57 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 3 57 1 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(320-event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(480-event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
     }
-    /*else {
-        string tempstrx2=inttoa(static_cast<int>(floor((((static_cast<double>(320-event->pos().x()))/320)*1024) + 0.5f)));
-        string tempstry2=inttoa(static_cast<int>(floor((((static_cast<double>(480-event->pos().y()))/480)*910) + 0.5f)));
-        multi_touch_click(tempstrx, tempstry, tempstrx2, tempstry2);
-    }*/
 }
 
-void myQWidget::mouseReleaseEvent(QMouseEvent *e)
+void myQWidget::mouseReleaseEvent( QMouseEvent *e)
 {
-    release_click();
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 
 void myQWidget::mouseMoveEvent(QMouseEvent *eve)
 {
-    string tempstrx=inttoa(static_cast<int>(floor((((static_cast<double>(eve->pos().x()))/320)*1024) + 0.5f)));
-    string tempstry=inttoa(static_cast<int>(floor((((static_cast<double>(eve->pos().y()))/480)*910) + 0.5f)));
     if (multi_touch==false) {
-        //send_click(QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f))), QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f))));
-
-        //send_click(tempstrx, tempstry);
+        exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(eve->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(eve->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 0 0\"");
     }
-    /*else {
-        string tempstrx2=inttoa(static_cast<int>(floor((((static_cast<double>(320-eve->pos().x()))/320)*1024) + 0.5f)));
-        string tempstry2=inttoa(static_cast<int>(floor((((static_cast<double>(480-eve->pos().y()))/480)*910) + 0.5f)));
-        multi_touch_click(tempstrx, tempstry, tempstrx2, tempstry2);
-    }*/
+    else {
+        exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 57 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(eve->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(eve->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 3 57 1 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(320-eve->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(480-eve->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
+    }
 }
 
 void myQWidget::paintEvent(QPaintEvent *)
@@ -198,67 +153,67 @@ void myQWidget::paintEvent(QPaintEvent *)
 
 void MainWindow::pwr_btn_click_start()
 {
-    system(("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 116 1\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 116 1\"");
 }
 
 void MainWindow::pwr_btn_click_end()
 {
-    system(("./bin/adb shell \"sendevent dev/input/"+keypad+" 1 116 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 116 0\"");
 }
 
 void MainWindow::vol_up_btn_click_start()
 {
-    system(("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 115 1\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 115 1\"");
 }
 
 void MainWindow::vol_up_btn_click_end()
 {
-    system(("./bin/adb shell \"sendevent dev/input/"+keypad+" 1 115 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 115 0\"");
 }
 
 void MainWindow::vol_dn_btn_click_start()
 {
-    system(("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 114 1\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 114 1\"");
 }
 
 void MainWindow::vol_dn_btn_click_end()
 {
-    system(("./bin/adb shell \"sendevent dev/input/"+keypad+" 1 114 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+keypad+" 1 114 0\"");
 }
 
 void MainWindow::home_btn_click_start()
 {
-    system(("./bin/adb shell \"sendevent dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 125 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 125 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 void MainWindow::home_btn_click_end()
 {
-    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 void MainWindow::menu_btn_click_start()
 {
-    system(("./bin/adb shell \"sendevent dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 375 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 375 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 void MainWindow::menu_btn_click_end()
 {
-    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 void MainWindow::back_btn_click_start()
 {
-    system(("./bin/adb shell \"sendevent dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 675 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 675 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 void MainWindow::back_btn_click_end()
 {
-    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 void MainWindow::search_btn_click_start()
 {
-    system(("./bin/adb shell \"sendevent dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 925 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 925 && sendevent /dev/input/"+himax+" 3 54 950 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 void MainWindow::search_btn_click_end()
 {
-    system(("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"").c_str());
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 void MainWindow::unlock_btn_click()
 {
-    system("./bin/adb shell \"sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 512 && sendevent /dev/input/event3 3 54 758 && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 1 && sendevent /dev/input/event3 3 53 880 && sendevent /dev/input/event3 3 54 758 && sendevent /dev/input/event3 0 0 0 && sendevent /dev/input/event3 3 48 0 && sendevent /dev/input/event3 0 0 0\"");
+    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 512 && sendevent /dev/input/"+himax+" 3 54 758 && sendevent /dev/input/"+himax+" 0 0 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 880 && sendevent /dev/input/"+himax+" 3 54 758 && sendevent /dev/input/"+himax+" 0 0 0 && sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }

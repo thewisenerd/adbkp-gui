@@ -399,6 +399,9 @@ Vineeth Raj&lt;br&gt;
       <pointsize>10</pointsize>
      </font>
     </property>
+    <property name="toolTip">
+     <string>Diagonal Multi-touch</string>
+    </property>
     <property name="text">
      <string>Diag-Touch</string>
     </property>
