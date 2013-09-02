@@ -36,6 +36,7 @@ public slots:
     void search_btn_click_start();
     void search_btn_click_end();
     void unlock_btn_click();
+    void recalibrate();
 };
 
 #endif // MAINWINDOW_H

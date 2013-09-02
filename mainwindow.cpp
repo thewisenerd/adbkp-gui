@@ -6,6 +6,9 @@
 #include <QCheckBox>
 #include <QProcess>
 #include <cmath>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -76,6 +79,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // touch type select
     this->connect(this->ui->multi_chk, SIGNAL(clicked()), SLOT(touch_type_set()));
+
+    // recalibrate
+    this->connect(this->ui->recalibrate_btn, SIGNAL(clicked()), SLOT(recalibrate()));
 }
 
 MainWindow::~MainWindow()
@@ -94,6 +100,39 @@ void MainWindow::rom_select()
         himax="event4";
         keypad="event3";
     }
+}
+
+string inttoa(int a) {
+    string str;
+    ostringstream temp;
+    temp<<a;
+    return temp.str();
+}
+
+void MainWindow::recalibrate()
+{
+    system("timeout 0.5s ./bin/adb shell getevent > ./temp1.txt");
+    system("grep -n himax-touchscreen ./temp1.txt | cut -c 1-2 > ./temp2.txt");
+    string s;
+    ifstream temp3("./temp2.txt");
+    getline(temp3,s);
+    temp3.close();
+
+    int line1 = atoi(s.c_str());
+    int line0 = line1 - 1;
+    std::string temp4=inttoa(line0);
+    system(("sed '"+temp4+"q;d' ./temp1.txt | cut -c 15- > ./temp5.txt").c_str());
+
+    string himax_val;
+    ifstream temp6("./temp5.txt");
+    getline(temp6,himax_val);
+    temp6.close();
+
+    system("rm ./temp1.txt");
+    system("rm ./temp2.txt");
+    system("rm ./temp5.txt");
+
+    himax = QString::fromUtf8(himax_val.c_str());
 }
 
 void MainWindow::touch_type_set()
