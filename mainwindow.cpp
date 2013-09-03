@@ -165,7 +165,7 @@ void myQWidget::update_bg()
 
 myQWidget::myQWidget(QWidget *parent):QWidget(parent)
 {
-    setStyleSheet("background-image: url(./black.png);");
+    setStyleSheet("background-image: url(:/files/black.png);");
 }
 
 void myQWidget::mousePressEvent(QMouseEvent *event)

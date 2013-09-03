@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/files">
         <file>android_logo.png</file>
+        <file>black.png</file>
     </qresource>
 </RCC>

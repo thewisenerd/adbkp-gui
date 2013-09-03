@@ -9,7 +9,6 @@ Example Release Directory:
 release-dir/
 release-dir/bin/
 release-dir/bin/adb
-release-dir/black.png
 release-dir/adbkp-gui
 
 Get the "adb" executable from android-sdk.

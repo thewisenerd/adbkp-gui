@@ -301,6 +301,9 @@ Vineeth Raj&lt;br&gt;
       <pointsize>10</pointsize>
      </font>
     </property>
+    <property name="cursor">
+     <cursorShape>SizeBDiagCursor</cursorShape>
+    </property>
     <property name="toolTip">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable diagonal Multi-touch&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Useful for zoom-in/out&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
@@ -377,6 +380,9 @@ Vineeth Raj&lt;br&gt;
       <family>Arial</family>
       <pointsize>10</pointsize>
      </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="toolTip">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type the word entered above&lt;br /&gt; in text field.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Supported only on 4.1.2+&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
