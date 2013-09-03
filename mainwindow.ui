@@ -319,65 +319,6 @@ Vineeth Raj&lt;br&gt;
 &lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QComboBox" name="rom_select">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>370</y>
-      <width>131</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>131</width>
-      <height>28</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>131</width>
-      <height>28</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="cursor">
-     <cursorShape>PointingHandCursor</cursorShape>
-    </property>
-    <property name="toolTip">
-     <string>Select ROM</string>
-    </property>
-    <item>
-     <property name="text">
-      <string>CM9</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>MiniCM9</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>CM10</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>CM10.1</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>CM10.2</string>
-     </property>
-    </item>
-   </widget>
    <widget class="QCheckBox" name="multi_chk">
     <property name="geometry">
      <rect>
@@ -410,7 +351,7 @@ Vineeth Raj&lt;br&gt;
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>420</y>
+      <y>370</y>
       <width>131</width>
       <height>28</height>
      </rect>
@@ -436,10 +377,10 @@ Vineeth Raj&lt;br&gt;
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="toolTip">
-     <string>Unlock Screen Gesture</string>
+     <string>Recalibrate event codes</string>
     </property>
     <property name="text">
-     <string>recalibrate</string>
+     <string>Recalibrate</string>
     </property>
     <property name="flat">
      <bool>false</bool>

@@ -17,8 +17,8 @@ bool multi_touch = false;
 QProcess *exec = new QProcess();
 
 // Default CM9 config
-QString himax="event1";
-QString keypad="event2";
+QString himax="event3";
+QString keypad="event4";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -75,9 +75,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // refresh button
     connect(upd_bg_btn, SIGNAL(clicked()), bg_img, SLOT(update_bg()));
 
-    // rom select
-    this->connect(this->ui->rom_select, SIGNAL(currentIndexChanged(int)), SLOT(rom_select()));
-
     // touch type select
     this->connect(this->ui->multi_chk, SIGNAL(clicked()), SLOT(touch_type_set()));
 
@@ -88,19 +85,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::rom_select()
-{
-    QString rom_name=this->ui->rom_select->currentText();
-    if (rom_name=="CM9") {
-        himax="event1";
-        keypad="event2";
-    }
-    else if (rom_name=="MiniCM9"){
-        himax="event4";
-        keypad="event3";
-    }
 }
 
 string inttoa(int a) {

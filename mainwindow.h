@@ -19,7 +19,6 @@ private:
     Ui::MainWindow *ui;
 
 public slots:
-    void rom_select();
     void touch_type_set();
     void pwr_btn_click_start();
     void pwr_btn_click_end();
