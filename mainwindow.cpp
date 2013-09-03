@@ -6,10 +6,8 @@
 #include <QCheckBox>
 #include <QProcess>
 #include <cmath>
-#include <iostream>
 #include <fstream>
 #include <sstream>
-#include <limits>
 
 using namespace std;
 
@@ -34,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Refresh button
     QPushButton *upd_bg_btn = new QPushButton(this);
-    upd_bg_btn->setGeometry(510, 200, 100, 28);
+    upd_bg_btn->setGeometry(510, 180, 100, 28);
     upd_bg_btn->setText("Refresh");
     upd_bg_btn->setToolTip("Refresh Screen");
     upd_bg_btn->setCursor(Qt::PointingHandCursor);
@@ -69,9 +67,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->connect(this->ui->search_btn, SIGNAL(pressed()), this, SLOT(search_btn_click_start()));
     this->connect(this->ui->search_btn, SIGNAL(released()), this, SLOT(search_btn_click_end()));
 
-    // unlock gesture
-    this->connect(this->ui->unlock_btn, SIGNAL(clicked()), this, SLOT(unlock_btn_click()));
-
     // refresh button
     connect(upd_bg_btn, SIGNAL(clicked()), bg_img, SLOT(update_bg()));
 
@@ -80,6 +75,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // recalibrate
     this->connect(this->ui->recalibrate_btn, SIGNAL(clicked()), SLOT(recalibrate()));
+
+    // send text
+    this->connect(this->ui->send_text, SIGNAL(clicked()), SLOT(sendtext()));
 }
 
 MainWindow::~MainWindow()
@@ -96,7 +94,7 @@ string inttoa(int a) {
 
 void MainWindow::recalibrate()
 {
-    system("timeout 2s ./bin/adb shell getevent > ./keycodes.txt");
+    system("timeout 1s ./bin/adb shell getevent > ./keycodes.txt");
     system("grep -n himax-touchscreen ./keycodes.txt | cut -c 1-2 > ./himax_event_line.txt");
     system("grep -n pico-keypad ./keycodes.txt | cut -c 1-2 > ./keypad_event_line.txt");
 
@@ -142,6 +140,12 @@ void MainWindow::recalibrate()
     keypad =  QString::fromUtf8(keypad_val);
 }
 
+void MainWindow::sendtext()
+{
+    exec->execute("./bin/adb shell \"input text \""+this->ui->line_send->text()+"\"\"");
+    this->ui->line_send->setText("");
+}
+
 void MainWindow::touch_type_set()
 {
     if (multi_touch==false){
@@ -170,12 +174,13 @@ void myQWidget::mousePressEvent(QMouseEvent *event)
             exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 0 0\"");
                 }
     else {
-        exec->execute("echo \"sendevent /dev/input/"+himax+" 3 57 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 3 57 1 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(320-event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(480-event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
+        exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 57 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 3 57 1 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(320-event->pos().x()))/320)*1024) + 0.5f)))+" && sendevent /dev/input/"+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(480-event->pos().y()))/480)*910) + 0.5f)))+" && sendevent /dev/input/"+himax+" 0 2 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
     }
 }
 
 void myQWidget::mouseReleaseEvent( QMouseEvent *e)
 {
+    e->ignore();
     exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
 
@@ -258,8 +263,4 @@ void MainWindow::search_btn_click_start()
 void MainWindow::search_btn_click_end()
 {
     exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
-}
-void MainWindow::unlock_btn_click()
-{
-    exec->execute("./bin/adb shell \"sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 512 && sendevent /dev/input/"+himax+" 3 54 758 && sendevent /dev/input/"+himax+" 0 0 0 && sendevent /dev/input/"+himax+" 3 48 1 && sendevent /dev/input/"+himax+" 3 53 880 && sendevent /dev/input/"+himax+" 3 54 758 && sendevent /dev/input/"+himax+" 0 0 0 && sendevent /dev/input/"+himax+" 3 48 0 && sendevent /dev/input/"+himax+" 0 0 0\"");
 }
