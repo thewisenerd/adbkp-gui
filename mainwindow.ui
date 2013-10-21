@@ -311,45 +311,6 @@ Vineeth Raj&lt;br&gt;
      <string>Diag-Touch</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="recalibrate_btn">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>370</y>
-      <width>131</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>100</width>
-      <height>28</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>131</width>
-      <height>28</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="cursor">
-     <cursorShape>PointingHandCursor</cursorShape>
-    </property>
-    <property name="toolTip">
-     <string>Recalibrate event codes</string>
-    </property>
-    <property name="text">
-     <string>Recalibrate</string>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="line_send">
     <property name="geometry">
      <rect>
