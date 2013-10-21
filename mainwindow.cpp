@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     recalibrate(); //auto-recalibrate at startup
 
+    exec->execute("adb wait-for-device"); //startup adb server
+
     // The *screen* box
     myQWidget *bg_img = new myQWidget(this);
     bg_img->setGeometry(160,5,320,480);
@@ -112,7 +114,8 @@ void MainWindow::recalibrate() {
     }
     int pos = keycodes_buf.find("/dev");
 
-    std::string himax_buf = keycodes_buf.substr(pos);
+    std::string himax_buf = keycodes_buf.substr(pos, 17);
+
     himax = QString::fromStdString(himax_buf);
 
     std::cout<<"Captured touchscreen event at: "<<himax.toStdString()<<std::endl;
@@ -138,7 +141,8 @@ void MainWindow::recalibrate() {
     }
     pos = keycodes_buf.find("/dev");
 
-    std::string keypad_buf = keycodes_buf.substr(pos);
+    std::string keypad_buf = keycodes_buf.substr(pos, 17);
+
     keypad = QString::fromStdString(keypad_buf);
 
     std::cout<<"Captured keypad event at: "<<keypad.toStdString()<<std::endl;
@@ -205,13 +209,14 @@ void myQWidget::paintEvent(QPaintEvent *) {
 }
 
 void MainWindow::pwr_btn_click_start() {
-    exec->execute("echo \"sendevent "+keypad+" 1 116 1 && sendevent "+keypad+" 0 0 0\"");
+    exec->execute("adb get-state");
+    exec->startDetached("adb shell \"adb shell sendevent "+keypad+" 1 116 1 && sendevent "+keypad+" 0 0 0\"");
 }
 void MainWindow::pwr_btn_click_end() {
-    exec->execute("echo \"adb shell sendevent "+keypad+" 1 116 0 && sendevent "+keypad+" 0 0 0\"");
+    exec->startDetached("adb shell \"adb shell sendevent "+keypad+" 1 116 0 && sendevent "+keypad+" 0 0 0\"");
 }
 void MainWindow::vol_up_btn_click_start() {
-    exec->execute("echo \"adb shell sendevent "+keypad+" 1 115 1 && sendevent "+keypad+" 0 0 0\"");
+    exec->execute("adb shell \"adb shell sendevent "+keypad+" 1 115 1 && sendevent "+keypad+" 0 0 0\"");
 }
 void MainWindow::vol_up_btn_click_end() {
     exec->execute("adb shell \"sendevent "+keypad+" 1 115 0 && sendevent "+keypad+" 0 0 0\"");
