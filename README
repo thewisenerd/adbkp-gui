@@ -5,13 +5,11 @@ Build and it should be ready. :)
 
 Releasing:
 
-Example Release Directory:
-release-dir/
-release-dir/bin/
-release-dir/bin/adb
-release-dir/adbkp-gui
+First install adb using "sudo apt-get install android-tools-adb" or similar
+*or*
+Reference adb path in your ~/.bashrc file!
 
-Get the "adb" executable from android-sdk.
+Then, chmod ./adbkp-gui (if necessary) and execute normally.
 
 References:
 -Twin0ne's guide here: http://forum.xda-developers.com/showthread.php?t=1875094

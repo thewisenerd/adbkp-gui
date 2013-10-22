@@ -1,36 +1,23 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <myQWidget.h>
-#include <QPainter>
-#include <QMouseEvent>
-#include <QCheckBox>
-#include <QProcess>
-#include <QDebug>
-#include <cmath>
 #include <fstream>
-#include <sstream>
 #include <iostream>
-
-using namespace std;
-
+#include <cmath>
+#include "mainwindow.h"
+#include <myQWidget.h>
+#include <QCheckBox>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QProcess>
+#include "ui_mainwindow.h"
 bool multi_touch = false;
 QProcess *exec = new QProcess();
-
 QString himax;
 QString keypad;
-
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget *parent):QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
-
+    exec->execute("timeout 5s adb wait-for-device"); //wait for adb server to be online
     recalibrate(); //auto-recalibrate at startup
 
-    exec->execute("adb wait-for-device"); //startup adb server
-
-    // The *screen* box
-    myQWidget *bg_img = new myQWidget(this);
+    myQWidget *bg_img = new myQWidget(this); // The *screen* box
     bg_img->setGeometry(160,5,320,480);
     bg_img->setCursor(Qt::CrossCursor);
     bg_img->show();
@@ -78,25 +65,39 @@ MainWindow::MainWindow(QWidget *parent) :
     // touch type select
     this->connect(this->ui->multi_chk, SIGNAL(clicked()), SLOT(touch_type_set()));
 
-    // recalibrate
-    //this->connect(this->ui->recalibrate_btn, SIGNAL(clicked()), SLOT(recalibrate()));
-
     // send text
     this->connect(this->ui->send_text, SIGNAL(clicked()), SLOT(sendtext()));
+
 }
 
 MainWindow::~MainWindow()
 {
+    if (remove ("ph.png")!=0) {
+        std::cout<<"Error removing ph.png"<<std::endl; //delete saved background
+        std::cout<<"You can safely remove keycodes.txt manually, later."<<std::endl;
+    }
     delete ui;
 }
 
 void MainWindow::recalibrate() {
-    system("timeout 1s adb shell getevent -c 1 > ./keycodes.txt");
+    remove ("keycodes.txt"); //safety precautions
 
-    ifstream keycodes("keycodes.txt");
+    int __attribute__((unused))tmp1 = system("timeout 1s adb shell getevent -c 1 > ./keycodes.txt");
+
+    std::ifstream keycodes("keycodes.txt");
     std::string keycodes_buf;
-    int line=0;
-
+    int line=1;
+    std::getline(keycodes, keycodes_buf, '\n');
+    if (keycodes_buf=="\0") {
+        std::cout<<"Error obtaining keycodes!"<<std::endl;
+        std::cout<<"Check your ADB connection"<<std::endl;
+        if (remove("keycodes.txt")!=0) {
+            std::cout<<"Error removing keycodes.txt"<<std::endl;
+            std::cout<<"You can safely remove keycodes.txt manually, later."<<std::endl;
+        }
+        keycodes.close();
+    }
+    else {
     while (!keycodes.eof()) {
         std::getline(keycodes, keycodes_buf, '\n');
         line += 1;
@@ -104,15 +105,15 @@ void MainWindow::recalibrate() {
             break;
         }
     }
-
     line -= 1;
     keycodes.clear();
-    keycodes.seekg(0, ios::beg);
+    keycodes.seekg(0, std::ios::beg);
+    //keycodes.seekg(0, ios::beg);
 
     for (int i=0; i<line; i++){
         std::getline(keycodes, keycodes_buf, '\n');
     }
-    int pos = keycodes_buf.find("/dev");
+    unsigned int pos = keycodes_buf.find("/dev");
 
     std::string himax_buf = keycodes_buf.substr(pos, 17);
 
@@ -121,7 +122,7 @@ void MainWindow::recalibrate() {
     std::cout<<"Captured touchscreen event at: "<<himax.toStdString()<<std::endl;
 
     keycodes.clear();
-    keycodes.seekg(0, ios::beg);
+    keycodes.std::istream::seekg(0, std::ios::beg);
     line=0;
 
     while (!keycodes.eof()) {
@@ -134,7 +135,7 @@ void MainWindow::recalibrate() {
 
     line -= 1;
     keycodes.clear();
-    keycodes.seekg(0, ios::beg);
+    keycodes.std::istream::seekg(0, std::ios::beg);
 
     for (int i=0; i<line; i++){
         std::getline(keycodes, keycodes_buf, '\n');
@@ -150,6 +151,8 @@ void MainWindow::recalibrate() {
     if (remove("keycodes.txt")!=0) {
         std::cout<<"Error removing keycodes.txt"<<std::endl;
         std::cout<<"You can safely remove keycodes.txt manually, later."<<std::endl;
+    }
+    keycodes.close();
     }
 }
 
@@ -170,7 +173,7 @@ void MainWindow::touch_type_set() {
 
 void myQWidget::update_bg() {
     setStyleSheet("background-image: url(./ph.png);");
-    system("adb shell screencap -p | sed 's/\r$//' > ph.png");
+    int __attribute__((unused))tmp2 = system("adb shell screencap -p | sed 's/\r$//' > ph.png");
     setStyle(QApplication::style());
 }
 
@@ -209,14 +212,13 @@ void myQWidget::paintEvent(QPaintEvent *) {
 }
 
 void MainWindow::pwr_btn_click_start() {
-    exec->execute("adb get-state");
-    exec->startDetached("adb shell \"adb shell sendevent "+keypad+" 1 116 1 && sendevent "+keypad+" 0 0 0\"");
+    exec->execute("adb shell \"sendevent "+keypad+" 1 116 1 && sendevent "+keypad+" 0 0 0\"");
 }
 void MainWindow::pwr_btn_click_end() {
-    exec->startDetached("adb shell \"adb shell sendevent "+keypad+" 1 116 0 && sendevent "+keypad+" 0 0 0\"");
+    exec->execute("adb shell \"sendevent "+keypad+" 1 116 0 && sendevent "+keypad+" 0 0 0\"");
 }
 void MainWindow::vol_up_btn_click_start() {
-    exec->execute("adb shell \"adb shell sendevent "+keypad+" 1 115 1 && sendevent "+keypad+" 0 0 0\"");
+    exec->execute("adb shell \"sendevent "+keypad+" 1 115 1 && sendevent "+keypad+" 0 0 0\"");
 }
 void MainWindow::vol_up_btn_click_end() {
     exec->execute("adb shell \"sendevent "+keypad+" 1 115 0 && sendevent "+keypad+" 0 0 0\"");
