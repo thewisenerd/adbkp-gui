@@ -67,7 +67,6 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent), ui(new Ui::MainWind
 
     // send text
     this->connect(this->ui->send_text, SIGNAL(clicked()), SLOT(sendtext()));
-
 }
 
 MainWindow::~MainWindow()
@@ -80,82 +79,47 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::recalibrate() {
-    remove ("keycodes.txt"); //safety precautions
+    remove ("touchscreen.txt"); //safety precautions
+    remove ("keypad.txt"); //safety precautions
 
-    int __attribute__((unused))tmp1 = system("timeout 1s adb shell getevent -c 1 > ./keycodes.txt");
+    int __attribute__((unused))tmp1 = system("adb shell getevent -pl | sed -e ':a;N;$!ba;s/\\n / /g' | grep 'ABS_MT_TOUCH' | awk '{print $4}' > touchscreen.txt");
+    tmp1 = system("adb shell getevent -pl | sed -e ':a;N;$!ba;s/\\n / /g' | grep 'KEY_POWER' | awk '{print $4}' > keypad.txt");
 
-    std::ifstream keycodes("keycodes.txt");
-    std::string keycodes_buf;
-    int line=1;
-    std::getline(keycodes, keycodes_buf, '\n');
-    if (keycodes_buf=="\0") {
+    std::ifstream touchscreen_f("touchscreen.txt");
+    std::ifstream keypad_f("keypad.txt");
+    std::string file_buf;
+    std::getline(touchscreen_f, file_buf, '\n');
+    if (file_buf=="\0") {
         std::cout<<"Error obtaining keycodes!"<<std::endl;
         std::cout<<"Check your ADB connection"<<std::endl;
-        if (remove("keycodes.txt")!=0) {
+        touchscreen_f.close();
+        keypad_f.close();
+        if ((remove("touchscreen.txt")!=0)||(remove("keypad.txt")!=0)) {
             std::cout<<"Error removing keycodes.txt"<<std::endl;
             std::cout<<"You can safely remove keycodes.txt manually, later."<<std::endl;
         }
-        keycodes.close();
     }
     else {
-    while (!keycodes.eof()) {
-        std::getline(keycodes, keycodes_buf, '\n');
-        line += 1;
-        if (keycodes_buf.find("himax-touchscreen") != std::string::npos) {
-            break;
-        }
-    }
-    line -= 1;
-    keycodes.clear();
-    keycodes.seekg(0, std::ios::beg);
-    //keycodes.seekg(0, ios::beg);
-
-    for (int i=0; i<line; i++){
-        std::getline(keycodes, keycodes_buf, '\n');
-    }
-    unsigned int pos = keycodes_buf.find("/dev");
-
-    std::string himax_buf = keycodes_buf.substr(pos, 17);
-
-    himax = QString::fromStdString(himax_buf);
+    himax = QString::fromStdString(file_buf.substr(0, 17));
+    touchscreen_f.close();
 
     std::cout<<"Captured touchscreen event at: "<<himax.toStdString()<<std::endl;
 
-    keycodes.clear();
-    keycodes.std::istream::seekg(0, std::ios::beg);
-    line=0;
+    std::getline(keypad_f, file_buf, '\n');
 
-    while (!keycodes.eof()) {
-        std::getline(keycodes, keycodes_buf, '\n');
-        line += 1;
-        if (keycodes_buf.find("pico-keypad") != std::string::npos) {
-            break;
-        }
-    }
-
-    line -= 1;
-    keycodes.clear();
-    keycodes.std::istream::seekg(0, std::ios::beg);
-
-    for (int i=0; i<line; i++){
-        std::getline(keycodes, keycodes_buf, '\n');
-    }
-    pos = keycodes_buf.find("/dev");
-
-    std::string keypad_buf = keycodes_buf.substr(pos, 17);
-
+    std::string keypad_buf = file_buf.substr(0, 17);
     keypad = QString::fromStdString(keypad_buf);
 
     std::cout<<"Captured keypad event at: "<<keypad.toStdString()<<std::endl;
 
-    if (remove("keycodes.txt")!=0) {
-        std::cout<<"Error removing keycodes.txt"<<std::endl;
-        std::cout<<"You can safely remove keycodes.txt manually, later."<<std::endl;
+    keypad_f.close();
+
+    if ((remove("touchscreen.txt")!=0)||(remove("keypad.txt")!=0)) {
+        std::cout<<"Error removing touchscreen.txt and keypad.txt"<<std::endl;
+        std::cout<<"You can safely remove them manually, later."<<std::endl;
     }
-    keycodes.close();
     }
 }
-
 
 void MainWindow::sendtext() {
     exec->execute("adb shell \"input text \""+this->ui->line_send->text()+"\"\"");

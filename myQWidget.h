@@ -3,8 +3,7 @@
 
 #include <QWidget>
 
-class myQWidget : public QWidget
-{
+class myQWidget : public QWidget {
     Q_OBJECT
 public:
     explicit myQWidget(QWidget *parent = 0);
