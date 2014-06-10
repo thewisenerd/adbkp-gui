@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QProcess>
+#include <QDebug>
 #include "ui_mainwindow.h"
 bool multi_touch = false;
 QProcess *exec = new QProcess();
@@ -82,10 +83,10 @@ void MainWindow::recalibrate() {
     remove ("touchscreen.txt"); //safety precautions
     remove ("keypad.txt"); //safety precautions
 
-    int __attribute__((unused))tmp1 = system("adb shell getevent -pl | sed -e ':a;N;$!ba;s/\\n / /g' | grep 'ABS_MT_TOUCH' | awk '{print $4}' > touchscreen.txt");
-    tmp1 = system("adb shell getevent -pl | sed -e ':a;N;$!ba;s/\\n / /g' | grep 'KEY_POWER' | awk '{print $4}' > keypad.txt");
+    system("adb shell 'for i in `ls /sys/devices/virtual/input`; do if [ \"`cat /sys/devices/virtual/input/${i}/name`\" == \"himax-touchscreen\" ];then echo /dev/input/$i | sed s@/input/input@/input/event@g; fi; done' > himax.txt");
+    system("adb shell 'for i in `ls /sys/devices/virtual/input`; do if [ \"`cat /sys/devices/virtual/input/${i}/name`\" == \"pico-keypad\" ];then echo /dev/input/$i | sed s@/input/input@/input/event@g; fi; done' > keypad.txt");
 
-    std::ifstream touchscreen_f("touchscreen.txt");
+    std::ifstream touchscreen_f("himax.txt");
     std::ifstream keypad_f("keypad.txt");
     std::string file_buf;
     std::getline(touchscreen_f, file_buf, '\n');
@@ -94,7 +95,7 @@ void MainWindow::recalibrate() {
         std::cout<<"Check your ADB connection"<<std::endl;
         touchscreen_f.close();
         keypad_f.close();
-        if ((remove("touchscreen.txt")!=0)||(remove("keypad.txt")!=0)) {
+        if ((remove("himax.txt")!=0)||(remove("keypad.txt")!=0)) {
             std::cout<<"Error removing keycodes.txt"<<std::endl;
             std::cout<<"You can safely remove keycodes.txt manually, later."<<std::endl;
         }
@@ -114,7 +115,7 @@ void MainWindow::recalibrate() {
 
     keypad_f.close();
 
-    if ((remove("touchscreen.txt")!=0)||(remove("keypad.txt")!=0)) {
+    if ((remove("himax.txt")!=0)||(remove("keypad.txt")!=0)) {
         std::cout<<"Error removing touchscreen.txt and keypad.txt"<<std::endl;
         std::cout<<"You can safely remove them manually, later."<<std::endl;
     }
@@ -147,7 +148,7 @@ myQWidget::myQWidget(QWidget *parent):QWidget(parent) {
 
 void myQWidget::mousePressEvent(QMouseEvent *e) {
     if (multi_touch==false) {
-            exec->execute("adb shell \"sendevent "+himax+" 3 48 1 && sendevent "+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(e->pos().x()))/320)*1024) + 0.5F)))+" && sendevent "+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(e->pos().y()))/480)*910) + 0.5F)))+" && sendevent "+himax+" 0 0 0\"");
+            exec->execute("echo adb shell \"sendevent "+himax+" 3 48 1 && sendevent "+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(e->pos().x()))/320)*1024) + 0.5F)))+" && sendevent "+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(e->pos().y()))/480)*910) + 0.5F)))+" && sendevent "+himax+" 0 0 0\"");
                 }
     else {
         exec->execute("adb shell \"sendevent "+himax+" 3 57 0 && sendevent "+himax+" 3 48 1 && sendevent "+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(e->pos().x()))/320)*1024) + 0.5F)))+" && sendevent "+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(e->pos().y()))/480)*910) + 0.5F)))+" && sendevent "+himax+" 0 2 0 && sendevent "+himax+" 3 57 1 && sendevent "+himax+" 3 48 1 && sendevent "+himax+" 3 53 "+QString::number(static_cast<int>(floor((((static_cast<double>(320-e->pos().x()))/320)*1024) + 0.5F)))+" && sendevent "+himax+" 3 54 "+QString::number(static_cast<int>(floor((((static_cast<double>(480-e->pos().y()))/480)*910) + 0.5F)))+" && sendevent "+himax+" 0 2 0 && sendevent "+himax+" 0 0 0\"");
